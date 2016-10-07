@@ -33,7 +33,7 @@ class SweetsTableViewController: UITableViewController {
                 let publicData = CKContainer.defaultContainer().publicCloudDatabase
                 publicData.saveRecord(newSweet, completionHandler: { (record:CKRecord?, error:NSError?) -> Void in
                     if error == nil{
-                        print("Sweet saved")
+                        print("Sweet saved")//
                     }
                     
                     
