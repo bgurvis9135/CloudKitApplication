@@ -11,11 +11,31 @@ import CloudKit
 
 class SweetsTableViewController: UITableViewController {
 
+    var sweets = [CKRecord]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-           }
-
+        loadData()
+        
+    }
+    
+    func loadData(){
+        sweets = [CKRecord]()
+        let publicData = CKContainer.defaultContainer().publicCloudDatabase
+        let quary = CKQuery(recordType: "Student", predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
+        publicData.performQuery(quary, inZoneWithID: nil) { (results:[CKRecord]?, error:NSError?) -> Void in
+            if let sweets = results{
+                self.sweets = sweets
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.tableView.reloadData()
+                    
+            })
+        }
+        
+        
+        }
+    }
     
     @IBAction func sendSweet(sender: AnyObject) {
         let alert = UIAlertController(title: "New Sweet", message: "Enter a sweet", preferredStyle: .Alert)
@@ -27,7 +47,7 @@ class SweetsTableViewController: UITableViewController {
             let textField = alert.textFields!.first!
             
             if textField.text != "" {
-                let newSweet = CKRecord(recordType:"Sweet")
+                let newSweet = CKRecord(recordType:"Student")
                 newSweet["content"] = textField.text
                 
                 let publicData = CKContainer.defaultContainer().publicCloudDatabase
@@ -49,30 +69,43 @@ class SweetsTableViewController: UITableViewController {
 
     
     }
-}
+
 
 
     // MARK: - Table view data source
 
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        
+        return 1
     }
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return sweets.count
     }
 
-    /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
 
-        // Configure the cell...
-
+        if sweets.count == 0{
+            return cell
+        }
+        
+        let sweet = sweets[indexPath.row]
+        
+        if let sweetContent = sweet["content"] as? String {
+            let dateFormat = NSDateFormatter()
+            dateFormat.dateFormat = "MM/dd/yyyy"
+            let dateString = dateFormat.stringFromDate(sweet.creationDate!)
+            
+            cell.textLabel?.text = sweetContent
+            cell.detailTextLabel?.text = dateString
+            
+        }
+        
         return cell
     }
-    */
+
 
     /*
     // Override to support conditional editing of the table view.
@@ -120,3 +153,4 @@ class SweetsTableViewController: UITableViewController {
     */
 
 
+}
